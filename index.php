@@ -1,11 +1,14 @@
 <?php
   
-  // This PHP example is based upon the excellent workd of https://gist.github.com/amfeng/3507366
+  // This PHP example is based upon the excellent work of https://gist.github.com/amfeng/3507366
   define('CLIENT_ID', 'YOURCLIENTID');
   define('API_KEY', 'YOURAPIKEY');
+  define('REDIRECT_URI', 'REDIRECT TO WHERE THIS PAGE IS ACCESIBLE');
 
-  define('TOKEN_URI', 'https://api.sandbox.billit.be/OAuth2/token');
-  define('AUTHORIZE_URI', 'https://my.sandbox.billit.be/Account/Logon?client_id=YOURCLIENTID&redirect_uri=REDIRECT_URI');
+  define('TOKEN_URI', 'https://api.sandbox.billit.be/OAuth2/token'); // staging environment change to 'https://api.billit.be/OAuth2/token'
+  define('AUTHORIZE_URI', 'https://my.sandbox.billit.be/Account/Logon?client_id=' . CLIENT_ID . '&redirect_uri=' .  REDIRECT_URI);
+
+
 
   if (isset($_GET['code'])) { // Redirect w/ code
     $code = $_GET['code'];
@@ -24,9 +27,15 @@
 
     // TODO: Additional error handling
     $respCode = curl_getinfo($req, CURLINFO_HTTP_CODE);
-    $resp = json_decode(curl_exec($req), true);
+    $resp = json_decode(curl_exec($req), true);   
+
     curl_close($req);
 
+    echo 'Response:<br />';
+    echo var_dump($resp) . '<br /><br />';
+
+
+    echo 'access_token:<br />';
     echo $resp['access_token'];
   } else if (isset($_GET['error'])) { // Error
     echo $_GET['error_description'];
