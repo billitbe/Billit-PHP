@@ -8,8 +8,6 @@
   define('TOKEN_URI', 'https://api.sandbox.billit.be/OAuth2/token'); // staging environment change to 'https://api.billit.be/OAuth2/token'
   define('AUTHORIZE_URI', 'https://my.sandbox.billit.be/Account/Logon?client_id=' . CLIENT_ID . '&redirect_uri=' .  REDIRECT_URI);
 
-
-
   if (isset($_GET['code'])) { // Redirect w/ code
     $code = $_GET['code'];
 
@@ -21,22 +19,39 @@
     );
 
     $req = curl_init(TOKEN_URI);
+
+    $data_string = json_encode($token_request_body);
+
+    curl_setopt($req, CURLOPT_HTTPHEADER, array(                                                                          
+      'Content-Type: application/json',                                                                                
+      'Content-Length: ' . strlen($data_string))                                                                       
+    );
+    curl_setopt($req, CURL, true);
     curl_setopt($req, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($req, CURLOPT_POST, true );
-    curl_setopt($req, CURLOPT_POSTFIELDS, http_build_query($token_request_body));
+    curl_setopt($req, CURLOPT_POSTFIELDS, json_encode($token_request_body));
 
     // TODO: Additional error handling
     $respCode = curl_getinfo($req, CURLINFO_HTTP_CODE);
-    $resp = json_decode(curl_exec($req), true);   
+    $jsonResp = curl_exec($req);
+    $arrayResp = json_decode($jsonResp, true);
 
     curl_close($req);
 
-    echo 'Response:<br />';
-    echo var_dump($resp) . '<br /><br />';
+    echo 'Response (in JSON):<br />';
+    echo $jsonResp . '<br /><br />';
 
+    echo 'Items in response:<br /><br />';
 
     echo 'access_token:<br />';
-    echo $resp['access_token'];
+    echo $arrayResp['access_token']."<br /><br />";
+
+    echo 'refresh_token:<br />';
+    echo $arrayResp['refresh_token']."<br /><br />";
+
+    echo 'expires_in:<br />';
+    echo $arrayResp['expires_in']."<br /><br />";
+
   } else if (isset($_GET['error'])) { // Error
     echo $_GET['error_description'];
   } else { // Show OAuth link
